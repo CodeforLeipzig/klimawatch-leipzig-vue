@@ -1,0 +1,45 @@
+variables:
+  DOCKER_TLS_CERTDIR: '/certs'
+
+cache:
+  key: $CI_COMMIT_REF_SLUG
+  paths:
+    - .npm/
+
+stages: # List of stages for jobs, and their order of execution
+  - build
+  - docker
+  - deploy
+
+build-vue:
+  stage: build
+  image: node:lts
+  variables:
+    DISABLE_ESLINT_PLUGIN: 'true'
+    IMAGE_INLINE_SIZE_LIMIT: 0
+    GENERATE_SOURCEMAP: 'false'
+  script:
+    - touch .npmrc
+    - npm ci --legacy-peer-deps --cache .npm --prefer-offline --no-audit
+    - export CI=false
+    - npm run build
+  artifacts:
+    paths:
+      - build
+
+docker-package-develop:
+  stage: docker
+  image: docker:stable-dind
+  services:
+    - name: docker:stable-dind
+      alias: docker
+  needs:
+    - job: build-vue
+      artifacts: true
+  variables:
+    DOCKER_BUILDKIT: 1
+  script:
+    - ls -halt
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build --tag "${CI_REGISTRY_IMAGE}" .
+    - docker push $CI_REGISTRY_IMAGE
