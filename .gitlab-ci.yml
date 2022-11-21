@@ -25,7 +25,7 @@ build-vue:
     - npm run build
   artifacts:
     paths:
-      - build
+      - dist
 
 docker-package-develop:
   stage: docker
