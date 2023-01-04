@@ -13,7 +13,9 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },
   "dependencies": {
+    "@types/d3": "^7.4.0",
     "axios": "^1.2.0",
+    "d3": "^7.8.0",
     "pinia": "^2.0.23",
     "vue": "^3.2.41",
     "vue-axios": "^3.5.2",
