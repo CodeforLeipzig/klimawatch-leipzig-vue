@@ -1,12 +1,11 @@
 <template>
     <h2>Chart</h2>
     <div>
-        <ul v-if="years && years.length">
-            <li v-for="year in years">
-                <p>{{year}}</p>
-            </li>
-        </ul>
-
+        Jahre:
+        <select v-model="selectedYear">
+            <option v-for="year in years" :value="year">{{year}}</option>
+        </select>
+        Sektoren: 
         <select v-model="selectedSector">
             <option v-for="sector in sectors" :value="sector">{{sector}}</option>
         </select>
@@ -36,6 +35,11 @@ declare interface EmissionsBackendValues {
     "Wert": Number
 }
 
+declare interface EmissionsBackendValuesMapped {
+    x: string,
+    y: Number
+}
+
 declare interface ErrorWithMessage {
     message: string
 }
@@ -45,40 +49,42 @@ export default {
     data() {
         return {
             selectedSector: String,
-            years: Array<Number>,
-            sectors: Array<String>,
-            emissionsBackend: Array<EmissionsBackendValues>,    
-            emissions: Array<Emission>,        
-            errorMessages: Array<String>
+            selectedYear: String,
+            years: [] as string[],
+            sectors: [] as string[],
+            emissionsBackend: [] as EmissionsBackendValues[],    
+            emissionsBackendMapped: [] as EmissionsBackendValuesMapped[],    
+            emissions: [] as Emission[],        
+            errorMessages: [] as string[]
         }
     },
     computed: {
         filteredData() {
-            return [{
+            return this.emissionsBackendMapped
+            /*return [{
                 x: "2017",
                 y: 500,
             },{
                 x: "2018",
                 y: 700,
-            }]
+            }]*/
         },
         maxValue() {
             return 700;
         },  
     },
     methods: {
-        setError(errors: Array<ErrorWithMessage>) {
-            this.errorMessages.apply(errors);
+        setError(errors: string[]) {
+            this.errorMessages = errors;
         },
         renderChart() {
             const height = 300
             const roundedHeight = Math.ceil((height + 1)/10) * 10
             const width = 800
-            const yearStrs = scaleBand([2017, 2018]) // TODO: this.years instead
             // set the ranges
             const xScale = d3
                 .scaleBand()
-                .domain(yearStrs.domain())
+                .domain(this.years)
                 .range([0, width])
                 .padding(0.2)
             const yScale = d3
@@ -118,21 +124,21 @@ export default {
             this.years = response.data
         })
         .catch((e: Error) => {
-            this.errorMessages.apply(e.message)
+            this.errorMessages = [e.message]
         })
         axios.get(`http://localhost:8080/emissions/sectors`)
         .then(response => {
             this.sectors = response.data
         })
         .catch((e: Error) => {
-            this.errorMessages.apply(e.message)
+            this.errorMessages = [e.message]
         })
         axios.get(`http://localhost:8080/emissions/greenhouse-gases?sector=Verkehr`)
         .then(response => {
-            this.emissionsBackend = response.data["Werte"]
+            this.emissionsBackendMapped = response.data["Werte"].map((entry: EmissionsBackendValues) => {{ x: entry["Wert"]; y: "" + entry["Jahr"] }})
         })
         .catch((e: Error) => {
-            this.errorMessages.apply(e.message)
+            this.errorMessages = [e.message]
         })
     },
     mounted() {
