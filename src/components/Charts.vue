@@ -133,7 +133,7 @@ export default {
         .catch((e: Error) => {
             this.errorMessages = [e.message]
         })
-        axios.get(`http://localhost:8080/emissions/greenhouse-gases?sector=Verkehr`)
+        axios.get(`${process.env.VUE_APP_BACKEND_SERVER}/emissions/greenhouse-gases?sector=Verkehr`)
         .then(response => {
             this.emissionsBackendMapped = response.data["Werte"].map((entry: EmissionsBackendValues) => {{ x: entry["Wert"]; y: "" + entry["Jahr"] }})
         })
