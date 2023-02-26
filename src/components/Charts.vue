@@ -60,17 +60,17 @@ export default {
     },
     computed: {
         filteredData() {
-            return this.emissionsBackendMapped
-            /*return [{
+            //return this.emissionsBackendMapped
+            return [{
                 x: "2017",
                 y: 500,
             },{
                 x: "2018",
-                y: 700,
-            }]*/
+                y: 800,
+            }]
         },
         maxValue() {
-            return 700;
+            return 800;
         },  
     },
     methods: {
@@ -135,7 +135,7 @@ export default {
         })
         axios.get(`${process.env.VUE_APP_BACKEND_SERVER}/emissions/greenhouse-gases?sector=Verkehr`)
         .then(response => {
-            this.emissionsBackendMapped = response.data["Werte"].map((entry: EmissionsBackendValues) => {{ x: entry["Wert"]; y: "" + entry["Jahr"] }})
+            //this.emissionsBackendMapped = response.data["Werte"].map((entry: EmissionsBackendValues) => {{ x: entry["Wert"]; y: "" + entry["Jahr"] }})
         })
         .catch((e: Error) => {
             this.errorMessages = [e.message]
